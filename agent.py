@@ -7,18 +7,25 @@ from livekit.plugins import (
 )
 from livekit.plugins import google
 from prompts import AGENT_INSTRUCTION, SESSION_INSTRUCTION
+from tools.tools import get_weather, search_web
 
 load_dotenv(".env")
 
+
 class Assistant(Agent):
     def __init__(self) -> None:
-        super().__init__(instructions=AGENT_INSTRUCTION,
-                         llm=google.beta.realtime.RealtimeModel(
-                         voice="Aoede",
-                             temperature=0.8,
-                         ))
+        super().__init__(
+            instructions=AGENT_INSTRUCTION,
+            llm=google.beta.realtime.RealtimeModel(
+                voice="Aoede",
+                temperature=0.8,
+            ),
+            tools=[get_weather, search_web],
+        )
+
 
 server = AgentServer()
+
 
 @server.rtc_session(agent_name="my-agent")
 async def my_agent(ctx: agents.JobContext):
@@ -29,7 +36,9 @@ async def my_agent(ctx: agents.JobContext):
         agent=Assistant(),
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(
-                noise_cancellation=ai_coustics.audio_enhancement(model=ai_coustics.EnhancerModel.QUAIL_VF_S),
+                noise_cancellation=ai_coustics.audio_enhancement(
+                    model=ai_coustics.EnhancerModel.QUAIL_VF_S
+                ),
             ),
         ),
     )
