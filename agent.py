@@ -12,17 +12,17 @@ load_dotenv(".env")
 
 class Assistant(Agent):
     def __init__(self) -> None:
-        super().__init__(instructions=AGENT_INSTRUCTION)
+        super().__init__(instructions=AGENT_INSTRUCTION,
+                         llm=google.beta.realtime.RealtimeModel(
+                         voice="Aoede",
+                             temperature=0.8,
+                         ))
 
 server = AgentServer()
 
 @server.rtc_session(agent_name="my-agent")
 async def my_agent(ctx: agents.JobContext):
-    session = AgentSession(
-        llm=google.beta.realtime.RealtimeModel(
-            voice="Charon"
-        )
-    )
+    session = AgentSession()
 
     await session.start(
         room=ctx.room,
